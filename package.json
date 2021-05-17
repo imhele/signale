@@ -1,21 +1,10 @@
 {
-  "name": "signale",
-  "version": "1.4.0",
+  "name": "lazy-signale",
+  "version": "2.0.0",
   "description": "Highly configurable logging utility",
   "license": "MIT",
-  "repository": "klaussinani/signale",
-  "author": {
-    "name": "Klaus Sinani",
-    "email": "klaussinani@gmail.com",
-    "url": "https://klaussinani.github.io"
-  },
-  "maintainers": [
-    {
-      "name": "Mario Sinani",
-      "email": "mariosinani@protonmail.ch",
-      "url": "https://mariocfhq.github.io"
-    }
-  ],
+  "repository": "imhele/signale",
+  "author": "imhele <work@imhele.com>",
   "engines": {
     "node": ">=6"
   },
@@ -40,13 +29,13 @@
     "test": "npm run lint && npm run test:ts"
   },
   "dependencies": {
-    "chalk": "^2.3.2",
+    "chalk": "^4.0.0",
     "figures": "^2.0.0",
     "pkg-conf": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^11.11.3",
-    "typescript": "^3.3.3333",
+    "typescript": "^4.2.3",
     "xo": "*"
   },
   "options": {

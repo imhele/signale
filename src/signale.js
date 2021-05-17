@@ -42,7 +42,7 @@ class Signale {
   }
 
   get currentOptions() {
-    return Object.assign({}, {
+    return {
       config: this._config,
       disabled: this._disabled,
       types: this._customTypes,
@@ -51,7 +51,7 @@ class Signale {
       stream: this._stream,
       secrets: this._secrets,
       logLevel: this._generalLogLevel
-    });
+    };
   }
 
   get date() {
@@ -116,7 +116,7 @@ class Signale {
   }
 
   _validateLogLevel(level) {
-    return Object.keys(this._logLevels).includes(level) ? level : 'info';
+    return Object.prototype.hasOwnProperty.call(this._logLevels, level) ? level : 'info';
   }
 
   _mergeTypes(standard, custom) {
@@ -171,7 +171,7 @@ class Signale {
   }
 
   _formatMessage(str) {
-    return util.format(...this._arrayify(str));
+    return util.format.apply(util, this._arrayify(str));
   }
 
   _meta() {
@@ -205,8 +205,12 @@ class Signale {
     return (suffix || prefix) ? '' : this._formatMessage(args);
   }
 
-  _buildSignale(type, ...args) {
+  _buildSignale(type, args) {
     let [msg, additional] = [{}, {}];
+
+    if (args.length === 1 && typeof (args[0]) === 'function') {
+      args = this._arrayify(args[0]());
+    }
 
     if (args.length === 1 && typeof (args[0]) === 'object' && args[0] !== null) {
       if (args[0] instanceof Error) {
@@ -283,8 +287,12 @@ class Signale {
     isPreviousLogInteractive = this._interactive;
   }
 
+  _logEnabled(logLevel) {
+    return this.isEnabled() && this._logLevels[logLevel] >= this._logLevels[this._generalLogLevel];
+  }
+
   _log(message, streams = this._stream, logLevel) {
-    if (this.isEnabled() && this._logLevels[logLevel] >= this._logLevels[this._generalLogLevel]) {
+    if (this._logEnabled(logLevel)) {
       this._formatStream(streams).forEach(stream => {
         this._write(stream, message);
       });
@@ -292,9 +300,13 @@ class Signale {
   }
 
   _logger(type, ...messageObj) {
-    const {stream, logLevel} = this._types[type];
-    const message = this._buildSignale(this._types[type], ...messageObj);
-    this._log(this._filterSecrets(message), stream, this._validateLogLevel(logLevel));
+    const {stream, logLevel: unsafeLogLevel} = this._types[type];
+    const logLevel = this._validateLogLevel(unsafeLogLevel);
+
+    if (this._logEnabled(logLevel)) {
+      const message = this._buildSignale(this._types[type], messageObj);
+      this._log(this._filterSecrets(message), stream, logLevel);
+    }
   }
 
   _padEnd(str, targetLength) {
