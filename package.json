@@ -1,6 +1,6 @@
 {
   "name": "lazy-signale",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Highly configurable logging utility",
   "license": "MIT",
   "repository": "imhele/signale",
@@ -30,8 +30,7 @@
   },
   "dependencies": {
     "chalk": "^4.0.0",
-    "figures": "^2.0.0",
-    "pkg-conf": "^2.1.0"
+    "figures": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^11.11.3",

@@ -4,20 +4,16 @@ const path = require('path');
 const readline = require('readline');
 const chalk = require('chalk');
 const figures = require('figures');
-const pkgConf = require('pkg-conf');
 const pkg = require('./../package.json');
 const defaultTypes = require('./types');
 
-const {green, grey, red, underline, yellow} = chalk;
-
 let isPreviousLogInteractive = false;
 const defaults = pkg.options.default;
-const namespace = pkg.name;
 
 class Signale {
   constructor(options = {}) {
     this._interactive = options.interactive || false;
-    this._config = Object.assign(this.packageConfiguration, options.config);
+    this._config = Object.assign({}, defaults, options.config);
     this._customTypes = Object.assign({}, options.types);
     this._disabled = options.disabled || false;
     this._scopeName = options.scope || '';
@@ -27,6 +23,7 @@ class Signale {
     this._longestLabel = this._getLongestLabel();
     this._secrets = options.secrets || [];
     this._generalLogLevel = this._validateLogLevel(options.logLevel);
+    this._chalk = options.colorLevel === undefined ? chalk : new chalk.Instance({ level: options.colorLevel });
 
     Object.keys(this._types).forEach(type => {
       this[type] = this._logger.bind(this, type);
@@ -79,12 +76,8 @@ class Signale {
     return firstExternalFilePath ? path.basename(firstExternalFilePath) : 'anonymous';
   }
 
-  get packageConfiguration() {
-    return pkgConf.sync(namespace, {defaults});
-  }
-
   get _longestUnderlinedLabel() {
-    return underline(this._longestLabel);
+    return this._chalk.underline(this._longestLabel);
   }
 
   get _logLevels() {
@@ -98,7 +91,7 @@ class Signale {
   }
 
   set configuration(configObj) {
-    this._config = Object.assign(this.packageConfiguration, configObj);
+    this._config = Object.assign({}, defaults, configObj);
   }
 
   _arrayify(x) {
@@ -195,7 +188,7 @@ class Signale {
 
     if (meta.length !== 0) {
       meta.push(`${figures.pointerSmall}`);
-      return meta.map(item => grey(item));
+      return meta.map(item => this._chalk.grey(item));
     }
 
     return meta;
@@ -228,46 +221,46 @@ class Signale {
 
     if (additional.prefix) {
       if (this._config.underlinePrefix) {
-        signale.push(underline(additional.prefix));
+        signale.push(this._chalk.underline(additional.prefix));
       } else {
         signale.push(additional.prefix);
       }
     }
 
     if (this._config.displayBadge && type.badge) {
-      signale.push(chalk[type.color](this._padEnd(type.badge, type.badge.length + 1)));
+      signale.push(this._chalk[type.color](this._padEnd(type.badge, type.badge.length + 1)));
     }
 
     if (this._config.displayLabel && type.label) {
       const label = this._config.uppercaseLabel ? type.label.toUpperCase() : type.label;
       if (this._config.underlineLabel) {
-        signale.push(chalk[type.color](this._padEnd(underline(label), this._longestUnderlinedLabel.length + 1)));
+        signale.push(this._chalk[type.color](this._padEnd(this._chalk.underline(label), this._longestUnderlinedLabel.length + 1)));
       } else {
-        signale.push(chalk[type.color](this._padEnd(label, this._longestLabel.length + 1)));
+        signale.push(this._chalk[type.color](this._padEnd(label, this._longestLabel.length + 1)));
       }
     }
 
     if (msg instanceof Error && msg.stack) {
       const [name, ...rest] = msg.stack.split('\n');
       if (this._config.underlineMessage) {
-        signale.push(underline(name));
+        signale.push(this._chalk.underline(name));
       } else {
         signale.push(name);
       }
 
-      signale.push(grey(rest.map(l => l.replace(/^/, '\n')).join('')));
+      signale.push(this._chalk.grey(rest.map(l => l.replace(/^/, '\n')).join('')));
       return signale.join(' ');
     }
 
     if (this._config.underlineMessage) {
-      signale.push(underline(msg));
+      signale.push(this._chalk.underline(msg));
     } else {
       signale.push(msg);
     }
 
     if (additional.suffix) {
       if (this._config.underlineSuffix) {
-        signale.push(underline(additional.suffix));
+        signale.push(this._chalk.underline(additional.suffix));
       } else {
         signale.push(additional.suffix);
       }
@@ -373,12 +366,12 @@ class Signale {
     this._timers.set(label, this._now);
 
     const message = this._meta();
-    message.push(green(this._padEnd(this._types.start.badge, 2)));
+    message.push(this._chalk.green(this._padEnd(this._types.start.badge, 2)));
 
     if (this._config.underlineLabel) {
-      message.push(green(this._padEnd(underline(label), this._longestUnderlinedLabel.length + 1)));
+      message.push(this._chalk.green(this._padEnd(this._chalk.underline(label), this._longestUnderlinedLabel.length + 1)));
     } else {
-      message.push(green(this._padEnd(label, this._longestLabel.length + 1)));
+      message.push(this._chalk.green(this._padEnd(label, this._longestLabel.length + 1)));
     }
 
     message.push('Initialized timer...');
@@ -400,16 +393,16 @@ class Signale {
       this._timers.delete(label);
 
       const message = this._meta();
-      message.push(red(this._padEnd(this._types.pause.badge, 2)));
+      message.push(this._chalk.red(this._padEnd(this._types.pause.badge, 2)));
 
       if (this._config.underlineLabel) {
-        message.push(red(this._padEnd(underline(label), this._longestUnderlinedLabel.length + 1)));
+        message.push(this._chalk.red(this._padEnd(this._chalk.underline(label), this._longestUnderlinedLabel.length + 1)));
       } else {
-        message.push(red(this._padEnd(label, this._longestLabel.length + 1)));
+        message.push(this._chalk.red(this._padEnd(label, this._longestLabel.length + 1)));
       }
 
       message.push('Timer run for:');
-      message.push(yellow(span < 1000 ? span + 'ms' : (span / 1000).toFixed(2) + 's'));
+      message.push(this._chalk.yellow(span < 1000 ? span + 'ms' : (span / 1000).toFixed(2) + 's'));
       this._log(message.join(' '), this._stream, 'timer');
 
       return {label, span};
