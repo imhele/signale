@@ -6,7 +6,7 @@
   "repository": "imhele/signale",
   "author": "imhele <work@imhele.com>",
   "engines": {
-    "node": ">=6"
+    "node": ">=12"
   },
   "files": [
     "src",
