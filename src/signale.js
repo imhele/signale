@@ -4,6 +4,7 @@ const path = require('path');
 const readline = require('readline');
 const chalk = require('chalk');
 const figures = require('figures');
+const dayjs = require('dayjs');
 const pkg = require('./../package.json');
 const defaultTypes = require('./types');
 
@@ -24,6 +25,7 @@ class Signale {
     this._secrets = options.secrets || [];
     this._generalLogLevel = this._validateLogLevel(options.logLevel);
     this._chalk = options.colorLevel === undefined ? chalk : new chalk.Instance({ level: options.colorLevel });
+    this._dayjs = options.dayjs || dayjs;
 
     Object.keys(this._types).forEach(type => {
       this[type] = this._logger.bind(this, type);
@@ -52,13 +54,15 @@ class Signale {
   }
 
   get date() {
-    const _ = new Date();
-    return [_.getFullYear(), _.getMonth() + 1, _.getDate()].join('-');
+    const {displayDate} = this._config;
+    const template = typeof displayDate === 'string' ? displayDate : 'YYYY-MM-DD';
+    return this._dayjs().format(template);
   }
 
   get timestamp() {
-    const _ = new Date();
-    return [_.getHours(), _.getMinutes(), _.getSeconds()].join(':');
+    const {displayTimestamp} = this._config;
+    const template = typeof displayTimestamp === 'string' ? displayTimestamp : 'HH:mm:ss';
+    return this._dayjs().format(template);
   }
 
   get filename() {

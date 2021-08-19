@@ -4,7 +4,8 @@
  *          Klaus Sinani <https://github.com/klaussinani>
  */
 
-import { Level } from 'chalk';
+import { Level as ColorLevel } from 'chalk';
+import dayjs from 'dayjs'
 import { Writable as WritableStream } from 'stream';
 
 export type DefaultLogger =
@@ -60,11 +61,13 @@ export interface LoggerConfiguration {
 
 export interface SignaleConfiguration {
   displayBadge?: boolean;
-  displayDate?: boolean;
+  /** Set to a string to customize the output format of dayjs. */
+  displayDate?: boolean | string;
   displayFilename?: boolean;
   displayLabel?: boolean;
   displayScope?: boolean;
-  displayTimestamp?: boolean;
+  /** Set to a string to customize the output format of dayjs. */
+  displayTimestamp?: boolean | string;
   underlineLabel?: boolean;
   underlineMessage?: boolean;
   underlinePrefix?: boolean;
@@ -73,8 +76,9 @@ export interface SignaleConfiguration {
 }
 
 export interface SignaleConstructorOptions<T extends string> {
-  colorLevel?: Level;
+  colorLevel?: ColorLevel;
   config?: SignaleConfiguration;
+  dayjs?: typeof dayjs;
   disabled?: boolean;
   interactive?: boolean;
   logLevel?: LogLevel;

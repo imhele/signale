@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "chalk": "^4.0.0",
+    "dayjs": "^1.10.6",
     "figures": "^2.0.0"
   },
   "devDependencies": {
